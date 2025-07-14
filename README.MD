@@ -8,9 +8,7 @@
 
 ### Training steps `--train0`
 
- 1. Conversion of string labels to unique integers and floats multiplied by 1000
-
->New normalized dataframe:
+#### 1. Conversion of string labels to unique integers and floats multiplied by 1000
 
 | Summary | Precip Type | Temperature (C) | Apparent Temperature (C) | Humidity | Wind Speed (km/h) | Wind Bearing (degrees) | Visibility (km) | Pressure (millibars) |
 |---------|-------------|------------------|---------------------------|----------|--------------------|-------------------------|------------------|------------------------|
@@ -20,56 +18,50 @@
 | 1       | 1           | 8288             | 5944                      | 830      | 14103              | 269000                  | 15826            | 1016410                |
 | 2       | 1           | 8755             | 6977                      | 830      | 11044              | 259000                  | 15826            | 1016510                |
 
- 2. Convert the Summary column from strings to single integer labels.
- >New labels for summary for prediction:
+#### 2. Convert the Summary column from strings to single integer labels.
+	New labels for summary for prediction:
 
-##### Partly Cloudy: 1
-##### Mostly Cloudy: 2
-##### Overcast: 3
-##### Foggy: 4
-##### Breezy and Mostly Cloudy: 5
-##### Clear: 6
-##### Breezy and Partly Cloudy: 7
-##### Breezy and Overcast: 8
-##### Humid and Mostly Cloudy: 9
-##### Humid and Partly Cloudy: 10
-##### Windy and Foggy: 11
-##### Windy and Overcast: 12
-##### Breezy and Foggy: 13
-##### Windy and Partly Cloudy: 14
-##### Breezy: 15
-##### Dry and Partly Cloudy: 16
-##### Windy and Mostly Cloudy: 17
-##### Dangerously Windy and Partly Cloudy: 18
-##### Dry: 19
-##### Windy: 20
-##### Humid and Overcast: 21
-##### Light Rain: 22
-##### Drizzle: 23
-##### Windy and Dry: 24
-##### Dry and Mostly Cloudy: 25
-##### Breezy and Dry: 26
-##### Rain: 27`
+	Partly Cloudy: 1
+	Mostly Cloudy: 2
+	Overcast: 3
+	Foggy: 4
+	Breezy and Mostly Cloudy: 5
+	Clear: 6
+	Breezy and Partly Cloudy: 7
+	Breezy and Overcast: 8
+	Humid and Mostly Cloudy: 9
+	Humid and Partly Cloudy: 10
+	Windy and Foggy: 11
+	Windy and Overcast: 12
+	Breezy and Foggy: 13
+	Windy and Partly Cloudy: 14
+	Breezy: 15
+	Dry and Partly Cloudy: 16
+	Windy and Mostly Cloudy: 17
+	Dangerously Windy and Partly Cloudy: 18
+	Dry: 19
+	Windy: 20
+	Humid and Overcast: 21
+	Light Rain: 22
+	Drizzle: 23
+	Windy and Dry: 24
+	Dry and Mostly Cloudy: 25
+	Breezy and Dry: 26
+	Rain: 27
 
-3. Only the last 33 rows (hours) of the dataframe are used for training.
+#### 3. Only the last 33 rows (hours) of the dataframe are used for training.
 
->Close the plot window to continue...
+	Close the plot window to continue...
 
----
->Specific number of unique classes for y: 3
+	Specific number of unique classes for y: 3
+	Prediction labels: [1 1 1 1 1 1 6 1 1 1 6]
 
-> Prediction labels: [1 1 1 1 1 1 6 1 1 1 6]
+	Model trained successfully. Score: 100.0 %
 
----
->Model trained successfully. Score: 100.0 %
-
-> Precision: 100.0 %
-
-> Mean Squared Error: 0.0 %
-
-> Recall Score: 100.0 %
-
-> F1 Score: 100.0 %
+	Precision: 100.0 %
+	Mean Squared Error: 0.0 %
+	Recall Score: 100.0 %
+	F1 Score: 100.0 %
 
 ### Expected forecast
 - This dataframe used for example prediction was taken a few hours (rows) before the last 33 hours (rows) of the dataframe used for training...
@@ -91,16 +83,14 @@
 	    
 	    df = df.drop('Summary', Axis=1)
 
->Simulating a Prediction weather conditions...
-
->Normalized dataframe:
+`Simulating a Prediction weather conditions...`
 
 | Precip Type | Temperature (C) | Apparent Temperature (C) | Humidity | Wind Speed (km/h) | Wind Bearing (degrees) | Visibility (km) | Pressure (millibars) |
 |-------------|------------------|---------------------------|----------|--------------------|-------------------------|------------------|------------------------|
 | 1           | 13844            | 13844                    | 840      | 0                  | 0                       | 15826            | 1017820                |
 
 
->Prediction label: Clear
+`Prediction label: Clear`
    
 ### Observations
 - `labels.json` It is generated after training containing a unique number assigned to each string label of the Dataframe column chosen as the response for training and prediction.
