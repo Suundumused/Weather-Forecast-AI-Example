@@ -1,12 +1,44 @@
 import os
+import sys
 import pandas as pd
+import zipfile
 
 from threading import Thread
 from Training.Features.utils import scale_values, label_string_cells
 
 
 def parse_dataframe(path:str) -> tuple[pd.DataFrame, dict]:
-    path = os.path.join(path, 'weatherHistory.csv')
+    folder = path
+    
+    labels_path = os.path.join(folder, 'labels.json')
+    path = os.path.join(folder, 'weatherHistory.csv')
+    zip_path = os.path.join(folder, 'weatherHistory.csv.zip')
+    
+    if os.path.exists(path):
+        os.remove(path)
+        
+    if os.path.exists(labels_path):
+        os.remove(labels_path)
+    
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(folder)
+            
+        print(f"Successfully extracted '{zip_path}' to '{path}'.\n")
+        
+    except zipfile.BadZipFile:
+        print(f"Error: '{zip_path}' is not a valid zip file.")
+        sys.exit()
+        
+    except FileNotFoundError:
+        print(f"Error: Zip file '{zip_path}' not found.")
+        sys.exit()
+        
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        sys.exit()
+    
+    print("Parsing dataframe...\n")
     
     df = pd.read_csv(os.path.join(path))
 
@@ -40,9 +72,9 @@ def parse_dataframe(path:str) -> tuple[pd.DataFrame, dict]:
     df = pd.concat([string_cols, df], axis=1) #Combines back the DataFrame with the old string columns as labels
     df = df.convert_dtypes().astype(int)
     
-    #df.to_csv(path, index=False)
+    df.to_csv(path, index=False)
     
     print("New normalized dataframe:")
     print(df.head())
     
-    return df, {value: key for key, value in addrs_summary.items()}
+    return df, {str(value): key for key, value in addrs_summary.items()}

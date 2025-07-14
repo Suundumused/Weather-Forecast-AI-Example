@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+import pickle
 
 import pandas as pd
 import json
@@ -8,11 +9,16 @@ import json
 from threading import Thread
 
 from sklearn.ensemble import RandomForestClassifier
-clf = RandomForestClassifier(n_estimators=1500)
+clf = RandomForestClassifier(n_estimators=1000)
 
 
 path = os.path.join(os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(sys.argv[0])), 
     'Training', 'local_data')
+
+model_folder = os.path.join(path, 'model')
+model_path = os.path.join(model_folder, 'model.pkl')
+
+os.makedirs(model_folder, exist_ok=True)
 
 def tuple_type(arg):
     try:
@@ -42,7 +48,7 @@ def to_train() -> dict:
     print('\nClose the plot window to continue...')
     plot_new_df(normalize_df(df))
     
-    df = df.iloc[-48:] #Using the last 48 hours of history for weather forecasting
+    df = df.iloc[-33:] #Using the last 33 hours of history for weather forecasting
     
     X = df.drop('Summary', axis=1)
     y = df['Summary']
@@ -59,10 +65,11 @@ def to_train() -> dict:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
         
     clf.fit(X_train, y_train)
+    pickle.dump(clf, open(model_path, 'wb'))
     
     y_pred = clf.predict(X_test)
     
-    print(f"\nPrediction labels: {y_pred}")
+    print(f"Prediction labels: {y_pred}")
     
     print(f"\nModel trained successfully. Score: {accuracy_score(y_test, y_pred) * 100} %\n")
     
@@ -91,7 +98,7 @@ if __name__ == '__main__':
     parser.add_argument('-t0', '--train_0', action='store_true', help='Train the model with the first type of dataset.')
     parser.add_argument('-t1', '--train_1', action='store_true', help='Train the model with the second type of dataset.')
     
-    parser.add_argument('-p', '--predict', action='store_true', help='API-compatible address.')
+    parser.add_argument('-p0', '--predict_0', action='store_true', help='Simulating weather forecast with values close to the last 33 hours of the dataframe.')
     
     args = parser.parse_args()
     
@@ -103,29 +110,42 @@ if __name__ == '__main__':
         labels = to_train()
         
     if args.train_1:
+        labels = to_train() #.....Script for personalized training...
         
-        
-        labels = to_train() #.....Any script to parse data for the model.
-        
-    if args.predict:
+    if args.predict_0:
+        from sklearn.utils.validation import check_is_fitted
         from Training.Features.utils import scale_values, label_string_cells
         import json
         
+        if not labels:
+            try:
+                with open(os.path.join(path, 'labels.json'), "r") as file:
+                    labels = json.load(file)
+                    
+            except FileNotFoundError:
+                print("Labels file not found. Please train the model first.")
+                sys.exit(1)
+        
+        try:
+            check_is_fitted(clf)
+        except:
+            clf:RandomForestClassifier = pickle.load(open(model_path, 'rb'))
+            
         print("\nSimulating a Prediction weather conditions...")    
         
         df = pd.DataFrame(
-                {
-                    'Summary': ["Clear"], #The correct answer will not be included in the prediction
-                    'Precip Type': ["rain"],
-                    'Temperature (C)': [13.844444444444445],
-                    'Apparent Temperature (C)': [13.844444444444445],
-                    'Humidity': [0.84],
-                    'Wind Speed (km/h)': [0.0],
-                    'Wind Bearing (degrees)': [0.0],
-                    'Visibility (km)': [15.826300000000002],
-                    'Pressure (millibars)': [1017.82]
-                }
-            )
+            {
+                'Summary': ["Clear"], #The correct answer will not be included in the prediction
+                'Precip Type': ["rain"],
+                'Temperature (C)': [13.844444444444445],
+                'Apparent Temperature (C)': [13.844444444444445],
+                'Humidity': [0.84],
+                'Wind Speed (km/h)': [0.0],
+                'Wind Bearing (degrees)': [0.0],
+                'Visibility (km)': [15.826300000000002],
+                'Pressure (millibars)': [1017.82]
+            }
+        )
         
         addrs_summary = {}
         precips_type = {}
@@ -145,16 +165,8 @@ if __name__ == '__main__':
         df = pd.concat([string_cols, df], axis=1) #Combines back the DataFrame with the old string columns as labels
                 
         df = df.drop('Summary', axis=1).convert_dtypes().astype(int) #The correct answer will not be included in the prediction
-        
-        if not labels:
-            try:
-                with open(os.path.join(path, 'labels.json'), "r") as file:
-                    labels = json.load(file)
-                    
-            except FileNotFoundError:
-                print("Labels file not found. Please train the model first.")
-                sys.exit(1)
 
-        print()
+        print("\nNormalized dataframe:")
         print(df)
-        print(f"\nPrediction label: {labels[clf.predict(df)[0]]}")
+                
+        print(f"\nPrediction label: {labels[str(clf.predict(df)[0])]}")
