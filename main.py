@@ -6,8 +6,6 @@ import pickle
 import pandas as pd
 import json
 
-from threading import Thread
-
 from sklearn.ensemble import RandomForestClassifier
 clf = RandomForestClassifier(n_estimators=1000)
 
@@ -48,16 +46,10 @@ def to_train() -> dict:
     print('\nClose the plot window to continue...')
     plot_new_df(normalize_df(df))
     
-    df = df.iloc[-33:] #Using the last 33 hours of history for weather forecasting
+    df = df.iloc[-33:] #Using 66% of the last 33 hours of history for training...
     
     X = df.drop('Summary', axis=1)
     y = df['Summary']
-    
-    '''vc = y.value_counts()
-    mask = y.isin(vc[vc >= 2].index) #Identify and drop unique classes
-
-    X = X[mask]
-    y = y[mask]'''
     
     if len(y.unique()) > 1:
         print(f"\nSpecific number of unique classes for y: {len(y.unique())}")
@@ -83,7 +75,7 @@ def to_train() -> dict:
     
 def plot_new_df(df:pd.DataFrame) -> None:
     import matplotlib.pyplot as plt
-    
+
     normalized_df = df.copy().head()
     normalized_df.plot()
     
@@ -114,7 +106,8 @@ if __name__ == '__main__':
         
     if args.predict_0:
         from sklearn.utils.validation import check_is_fitted
-        from Training.Features.utils import scale_values, label_string_cells
+        from sklearn.preprocessing import LabelEncoder
+        
         import json
         
         if not labels:
@@ -133,9 +126,8 @@ if __name__ == '__main__':
             
         print("\nSimulating a Prediction weather conditions...")    
         
-        df = pd.DataFrame(
+        df = pd.DataFrame( #The correct answer will not be included in the prediction
             {
-                'Summary': ["Clear"], #The correct answer will not be included in the prediction
                 'Precip Type': ["rain"],
                 'Temperature (C)': [13.844444444444445],
                 'Apparent Temperature (C)': [13.844444444444445],
@@ -146,27 +138,10 @@ if __name__ == '__main__':
                 'Pressure (millibars)': [1017.82]
             }
         )
-        
-        addrs_summary = {}
-        precips_type = {}
-        
-        string_cols = df.select_dtypes(include=['object', 'string'])
-        df = df.select_dtypes(include=['number'])
-        
-        process_1 = Thread(target=label_string_cells, args=(string_cols, addrs_summary, precips_type))
-        process_1.start()
-        
-        process_2 = Thread(target=scale_values, args=(df,))
-        process_2.start()
-        
-        process_2.join()
-        process_1.join()
-        
-        df = pd.concat([string_cols, df], axis=1) #Combines back the DataFrame with the old string columns as labels
                 
-        df = df.drop('Summary', axis=1).convert_dtypes().astype(int) #The correct answer will not be included in the prediction
-
-        print("\nNormalized dataframe:")
+        df['Precip Type'] = LabelEncoder().fit_transform(df['Precip Type'])
+                
+        print("\nValues to predict:")
         print(df)
                 
         print(f"\nPrediction label: {labels[str(clf.predict(df)[0])]}")

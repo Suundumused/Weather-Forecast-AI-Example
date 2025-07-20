@@ -3,8 +3,7 @@ import sys
 import pandas as pd
 import zipfile
 
-from threading import Thread
-from Training.Features.utils import scale_values, label_string_cells
+from sklearn.preprocessing import LabelEncoder
 
 
 def parse_dataframe(path:str) -> tuple[pd.DataFrame, dict]:
@@ -48,33 +47,26 @@ def parse_dataframe(path:str) -> tuple[pd.DataFrame, dict]:
         df.drop('Loud Cover', axis=1, inplace=True)
     except:
         pass
-        
-    addrs_summary = {}
-    precips_type = {}
     
+    addrs_summary = {}
+    for index, value in df['Summary'].items():
+        addrs_summary[value] = index
+        
     for column in df.columns:    
         df.drop(df[df[column].isin(['null', None])].index, inplace=True) #Remove invalid values ​​from DataFrame
         
     df.reset_index(drop=True, inplace=True)
     
-    string_cols = df.select_dtypes(include=['object', 'string'])
-    df = df.select_dtypes(include=['number'])
-        
-    process_1 = Thread(target=label_string_cells, args=(string_cols, addrs_summary, precips_type))
-    process_1.start()
-    
-    process_2 = Thread(target=scale_values, args=(df,))
-    process_2.start()
-    
-    process_2.join()
-    process_1.join()
-        
-    df = pd.concat([string_cols, df], axis=1) #Combines back the DataFrame with the old string columns as labels
-    df = df.convert_dtypes().astype(int)
+    df['Summary'] = LabelEncoder().fit_transform(df['Summary'])
+    df['Precip Type'] = LabelEncoder().fit_transform(df['Precip Type'])
     
     df.to_csv(path, index=False)
     
-    print("New normalized dataframe:")
+    print("New fixed dataframe:")
     print(df.head())
-    
-    return df, {str(value): key for key, value in addrs_summary.items()}
+        
+    _addrs_summary = {}
+    for key, value in addrs_summary.items():
+        _addrs_summary[str(df['Summary'][value])] = key
+            
+    return df, _addrs_summary
