@@ -8,7 +8,7 @@
 
 ### Training steps `--train0`
 
-#### 1. Conversion of string labels to unique integers and floats multiplied by 1000
+#### 1. Example of the treated table.
 
 | Summary | Precip Type | Temperature (C) | Apparent Temperature (C) | Humidity | Wind Speed (km/h) | Wind Bearing (degrees) | Visibility (km) | Pressure (millibars) |
 |---------|-------------|-----------------|--------------------------|----------|-------------------|------------------------|-----------------|----------------------|
