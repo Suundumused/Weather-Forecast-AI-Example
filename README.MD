@@ -1,6 +1,9 @@
 ﻿## Weather Forecast Example Model
 #### The project scope is a weather forecasting model based on behavioral analysis of the last 33 hours (hour-by-hour forecast) with `Random Forest Classifier`. The program automatically saves and loads the last trained model for prediction.
 
+### Requirements
+	`pip install -r requirements.txt`
+
 ### Usage
    `--train_0` Default script for training with the provided weatherHistory.csv
 
@@ -67,21 +70,18 @@
 - This dataframe used for example prediction was taken a few hours (rows) before the last 33 hours (rows) of the dataframe used for training...
 
 
-	    df  =  pd.DataFrame(
-		    {
-			    'Summary': ["Clear"], #The correct answer will not be included in the prediction
-			    'Precip Type': ["rain"],
-			    'Temperature (C)': [13.844444444444445],
-			    'Apparent Temperature (C)': [13.844444444444445],
-			    'Humidity': [0.84],
-			    'Wind Speed (km/h)': [0.0],
-			    'Wind Bearing (degrees)': [0.0],
-			    'Visibility (km)': [15.826300000000002],
-			    'Pressure (millibars)': [1017.82]
-		    }
-	    )
-	    
-	    df = df.drop('Summary', Axis=1)
+	    df = pd.DataFrame( #The correct answer will not be included in the prediction
+            {
+                'Precip Type': ["rain"],
+                'Temperature (C)': [13.844444444444445],
+                'Apparent Temperature (C)': [13.844444444444445],
+                'Humidity': [0.84],
+                'Wind Speed (km/h)': [0.0],
+                'Wind Bearing (degrees)': [0.0],
+                'Visibility (km)': [15.826300000000002],
+                'Pressure (millibars)': [1017.82]
+            }
+        )
 
 `Simulating a Prediction weather conditions...`
 
