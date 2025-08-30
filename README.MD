@@ -2,7 +2,7 @@
 #### The project scope is a weather forecasting model based on behavioral analysis of the last 33 hours (hour-by-hour forecast) with `Random Forest Classifier`. The program automatically saves and loads the last trained model for prediction.
 
 ### Requirements
-	`pip install -r requirements.txt`
+	pip install -r requirements.txt
 
 ### Usage
    `--train_0` Default script for training with the provided weatherHistory.csv
