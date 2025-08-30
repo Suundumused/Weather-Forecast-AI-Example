@@ -66,6 +66,9 @@
 	Recall Score: 100.0 %
 	F1 Score: 100.0 %
 
+#### 4. Automation
+ - The model is saved at `\Training\local_data` after training and can be initialized again for future predictions, such as retrained by resetting all state and labels.
+
 ### Expected forecast
 - This dataframe used for example prediction was taken a few hours (rows) before the last 33 hours (rows) of the dataframe used for training...
 
